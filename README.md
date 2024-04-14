@@ -19,6 +19,7 @@ python train.py
 ## torch原生推理
 
 ```
+python torch_infer.py
 ```
 
 ## onnxruntime cuda推理
