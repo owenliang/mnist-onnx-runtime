@@ -20,11 +20,14 @@ python train.py
 
 ```
 python torch_infer.py
+正确率:98.93 耗时: 16.553289651870728 s
 ```
 
 ## onnxruntime cuda推理
 
 ```
+python onnx_cuda_infer.py
+正确率:98.93 耗时: 13.57606029510498 s
 ```
 
 ## onnxruntime tensorrt推理

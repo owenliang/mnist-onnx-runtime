@@ -24,9 +24,11 @@ optimzer=torch.optim.Adam(model.parameters(),lr=1e-3)   # 优化器
 '''
 
 EPOCH=50
-BATCH_SIZE=64   # 从batch内选出10个不一样的数字
+BATCH_SIZE=64 
 
 dataloader=DataLoader(dataset,batch_size=BATCH_SIZE,shuffle=True,num_workers=10,persistent_workers=True)    # 数据加载器
+
+model.train()
 
 iter_count=0
 for epoch in range(EPOCH):
