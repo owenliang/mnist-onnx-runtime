@@ -19,7 +19,7 @@ Inference with ONNX Runtime with CPU/CUDA/TensorRT backend
 
 ## ONNX RUNTIME
 
-微软开源的通用推理引擎，基于ONNX模型存储格式+RUNTIME框架，解耦了深度学习框架和底层硬件之间。
+微软开源的通用推理引擎，基于ONNX模型存储格式+RUNTIME框架，对深度学习框架和底层硬件之间实现了解耦和抽象。
 
 利用ONNX解决方案，可以对接主流深度学习框架训练的Model、自动选择并运行于多种硬件设备（CPU,GPU）、并能透明的基于tensorRT这样的英伟达加速技术进一步加速。
 
@@ -49,18 +49,16 @@ cuDNN 8.9
 ```
 https://docs.nvidia.com/deeplearning/cudnn/archives/cudnn-860/install-guide/index.html
 https://developer.nvidia.com/rdp/cudnn-archive
+```
 
-命令如下：
+tensorrt8.6.0
+```
 wget 'https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/secure/8.6.1/tars/TensorRT-8.6.1.6.Linux.x86_64-gnu.cuda-11.8.tar.gz'
 tar -xvf TensorRT-8.6.1.6.Linux.x86_64-gnu.cuda-11.8.tar.gz
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`/TensorRT-8.6.1.6/lib
 pip install TensorRT-8.6.1.6/python/tensorrt-8.6.1-cp310-none-linux_x86_64.whl
 pip install TensorRT-8.6.1.6/graphsurgeon/graphsurgeon-0.4.6-py2.py3-none-any.whl 
 pip install TensorRT-8.6.1.6/onnx_graphsurgeon/onnx_graphsurgeon-0.3.12-py2.py3-none-any.whl 
-```
-
-tensorrt8.6.0
-```
 ```
 
 pip dependencies
@@ -107,7 +105,7 @@ python onnx_cuda_infer.py
 
 ```
 python onnx_trt_infer.py
-正确率:99.06 耗时: 9.557457208633423 s
+正确率:99.19 耗时: 29.297020435333252 s  【TODO:性能不如CUDA，需要找原因】
 ```
 
 ## 关于Netron
