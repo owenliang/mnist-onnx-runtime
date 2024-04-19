@@ -29,8 +29,12 @@ torch.onnx.export(model,torch.rand((BATCH_SIZE,1,28,28)),f='model.onnx')
 onnx_model=onnx.load('model.onnx')
 onnx.checker.check_model(onnx_model)
 
+# onnx模型需要为trt做特殊处理：https://onnxruntime.ai/docs/execution-providers/TensorRT-ExecutionProvider.html#shape-inference-for-tensorrt-subgraphs
+import os 
+os.system('python -m onnxruntime.tools.symbolic_shape_infer --input model.onnx --output model-trt.onnx --auto_merge')
+
 # 推理
-sess=onnxruntime.InferenceSession('model.onnx',providers=['TensorrtExecutionProvider','CUDAExecutionProvider','CPUExecutionProvider'])
+sess=onnxruntime.InferenceSession('model-trt.onnx',providers=['TensorrtExecutionProvider','CUDAExecutionProvider','CPUExecutionProvider'])
 
 start_time=time.time()
 
