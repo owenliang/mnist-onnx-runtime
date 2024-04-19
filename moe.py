@@ -46,7 +46,9 @@ class MoE(nn.Module):
         for expert_i,expert_model in enumerate(self.experts):
             x_expert=x[top_index==expert_i] # (...,emb)
             y_expert=expert_model(x_expert)   # (...,emb)
-            y[top_index==expert_i]=y_expert
+            
+            add_index=(top_index==expert_i).nonzero().flatten() # 要修改的下标
+            y=y.index_add(dim=0,index=add_index,source=y_expert)   # 等价于y[top_index==expert_i]=y_expert，为了保证计算图正确，保守用index_add算子
         
         # weighted sum experts
         top_weights=top_weights.view(-1,1).expand(-1,x.size(-1))  # (batch*seq_len*top,emb)
