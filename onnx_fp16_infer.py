@@ -8,8 +8,10 @@ from config import *
 from dataset import MNIST
 from torch.utils.data import DataLoader
 import time 
+from onnxruntime.quantization import quantize_dynamic
 import os 
-
+from onnxconverter_common import float16
+ 
 EPOCH=10
 BATCH_SIZE=64 
 
@@ -30,12 +32,12 @@ torch.onnx.export(model,torch.rand((BATCH_SIZE,1,28,28)),f='model.onnx')
 onnx_model=onnx.load('model.onnx')
 onnx.checker.check_model(onnx_model)
 
-# onnx模型需要为trt做特殊处理：https://onnxruntime.ai/docs/execution-providers/TensorRT-ExecutionProvider.html#shape-inference-for-tensorrt-subgraphs
-import os 
-os.system('python -m onnxruntime.tools.symbolic_shape_infer --input model.onnx --output model-trt.onnx --auto_merge')
+# fp16
+model_fp16=float16.convert_float_to_float16(onnx_model)
+onnx.save(model_fp16,'model-fp16.onnx')
 
 # 推理
-sess=onnxruntime.InferenceSession('model-trt.onnx',providers=['TensorrtExecutionProvider','CUDAExecutionProvider','CPUExecutionProvider'])
+sess=onnxruntime.InferenceSession('model-fp16.onnx',providers=['CUDAExecutionProvider','CPUExecutionProvider'])
 
 start_time=time.time()
 
@@ -46,7 +48,7 @@ for epoch in range(EPOCH):
         if img.size(0)!=BATCH_SIZE: # onnx输入尺寸固定，最后1个batch要补齐
             fills=torch.zeros(BATCH_SIZE-img.size(0),1,28,28)
             img=torch.concat((img,fills),dim=0)
-        outputs=sess.run(output_names=None,input_feed={sess.get_inputs()[0].name:img.numpy()})  # 输入&输出
+        outputs=sess.run(output_names=None,input_feed={sess.get_inputs()[0].name:img.numpy().astype('float16')})  # 输入&输出
         logits=outputs[0][:batch_size]
 
         correct+=(logits.argmax(-1)==label.numpy()).sum()
@@ -54,4 +56,4 @@ for epoch in range(EPOCH):
 print('正确率:%.2f'%(correct/(len(dataset)*EPOCH)*100),'耗时:',time.time()-start_time,'s')
 
 # 展示onnx模型
-netron.start('model.onnx')
+netron.start('model-fp16.onnx')
