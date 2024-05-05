@@ -23,7 +23,7 @@ start_time=time.time()
 correct=0
 for epoch in range(EPOCH):
     for img,label in dataloader:
-        logits=model(img.to(DEVICE))
+        logits,_,_=model(img.to(DEVICE))
         
         correct+=(logits.cpu().argmax(-1)==label).sum()
         

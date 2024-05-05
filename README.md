@@ -211,3 +211,16 @@ netron.start('model.onnx')
 ![](model.onnx.svg)
 
 模型复杂了之后其实计算图是很难看懂的...
+
+## 后续优化
+
+根据B站友友提醒，需要考虑expert之间的均衡性，避免网络倾向于某几个expert。
+
+参考论文：[OUTRAGEOUSLY LARGE NEURAL NETWORKS:
+THE SPARSELY-GATED MIXTURE-OF-EXPERTS LAYER](https://arxiv.org/pdf/1701.06538)
+
+增加2个特性：
+- 训练阶段，gate的概率输出需要加上噪音，以便能有概率跳出expert倾向
+- 训练阶段，需要补充1个额外的loss，目的是让各expert的总概率打分趋于一致，避免有expert倾向
+
+这两个特性在推理阶段都会关闭。

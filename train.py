@@ -24,7 +24,7 @@ optimzer=torch.optim.Adam(model.parameters(),lr=1e-3)   # 优化器
 '''
 
 EPOCH=50
-BATCH_SIZE=64 
+BATCH_SIZE=128
 
 dataloader=DataLoader(dataset,batch_size=BATCH_SIZE,shuffle=True,num_workers=10,persistent_workers=True)    # 数据加载器
 
@@ -33,15 +33,19 @@ model.train()
 iter_count=0
 for epoch in range(EPOCH):
     for imgs,labels in dataloader:
-        logits=model(imgs.to(DEVICE))
+        logits,prob,imp_loss=model(imgs.to(DEVICE))
         
         loss=F.cross_entropy(logits,labels.to(DEVICE))
+        loss=loss+imp_loss
         
         optimzer.zero_grad()
         loss.backward()
         optimzer.step()
         if iter_count%1000==0:
-            print('epoch:{} iter:{},loss:{}'.format(epoch,iter_count,loss))
+            # 统计expert分布
+            expert_stats=torch.argmax(prob,dim=-1).cpu().unique(return_counts=True)[1].numpy()
+            
+            print('epoch:{} iter:{},loss:{},experts:{}'.format(epoch,iter_count,loss,expert_stats))
             torch.save(model.state_dict(),'.model.pth')
             os.replace('.model.pth','model.pth')
         iter_count+=1
